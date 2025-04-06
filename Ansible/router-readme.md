@@ -1,46 +1,3 @@
-<!DOCTYPE html>
-<html lang="no">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Router-konfigurasjon med Ansible</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            background-color: #ffffff;
-            color: #000;
-            padding: 20px;
-            line-height: 1.6;
-            max-width: 900px;
-            margin: auto;
-        }
-        h1, h2, h3 {
-            color: #0b3d91;
-        }
-        pre {
-            background-color: #f4f4f4;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            overflow-x: auto;
-        }
-        code {
-            background-color: #eee;
-            padding: 2px 4px;
-            border-radius: 3px;
-        }
-        ul {
-            padding-left: 20px;
-        }
-        .note {
-            background-color: #eef;
-            padding: 10px;
-            border-left: 4px solid #88f;
-            margin: 10px 0;
-        }
-    </style>
-</head>
-<body>
 
 <h1>📡 Cisco Router-konfigurasjon med Ansible</h1>
 
@@ -136,9 +93,5 @@ hsrp:
 
 <h2>👨‍💻 Forfatter</h2>
 <p>© Torben – 2025</p>
-
-</body>
-</html>
-
 
 
