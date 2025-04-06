@@ -1,7 +1,7 @@
 
-<h1>📡 Cisco Router-konfigurasjon med Ansible</h1>
+<h1>Cisco Router-konfigurasjon med Ansible</h1>
 
-<h2>🧾 Om prosjektet</h2>
+<h2>Om prosjektet</h2>
 <p>Dette prosjektet automatiserer konfigurasjonen av en Cisco-router ved hjelp av Ansible og en YAML-basert variabelfil. Ansible-playbooken konfigurerer en rekke viktige nettverksfunksjoner for Cisco-routeren, inkludert:</p>
 <ul>
     <li><strong>Hostname</strong>: Setter vertens navn for routeren.</li>
@@ -21,7 +21,7 @@ vars_router.yaml       # Variabler for router
 inventory              # Inventory-fil med SSH-detaljer
 </pre>
 
-<h2>⚙️ Krav</h2>
+<h2>Krav</h2>
 <p>Før du bruker denne Ansible-playbooken, sørg for at følgende krav er oppfylt:</p>
 <ul>
     <li><strong>Ansible installert</strong>: Ansible er nødvendig for å kjøre playbooken på systemet ditt.</li>
@@ -49,7 +49,7 @@ inventory              # Inventory-fil med SSH-detaljer
 ansible-playbook -i inventory router_config.yaml
 </pre>
 
-<h2>🛠️ Eksempel: <code>vars_router.yaml</code></h2>
+<h2>Eksempel: <code>vars_router.yaml</code></h2>
 <p>Her er et eksempel på hvordan <code>vars_router.yaml</code> kan se ut:</p>
 <pre>
 hostname: "Router1"
