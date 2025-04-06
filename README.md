@@ -18,8 +18,8 @@
   <tr><td>inventory.ini</td><td>Inneholder IP-adresser til router og switch.</td></tr>
   <tr><td>router_config.yaml</td><td>Ansible playbook for å konfigurere router.</td></tr>
   <tr><td>switch_config.yaml</td><td>Ansible playbook for å konfigurere switch.</td></tr>
-  <tr><td>vars_router.yaml</td><td>Variabler for router-konfigurasjon (VLAN, IP, OSPF, DHCP, HSRP).</td></tr>
-  <tr><td>vars_switch.yaml</td><td>Variabler for switch-konfigurasjon (VLAN, trunk).</td></tr>
+  <tr><td>vars_router.yaml</td><td>Variabler for router-konfigurasjon (VLAN, Interfaces, OSPF, DHCP, HSRP).</td></tr>
+  <tr><td>vars_switch.yaml</td><td>Variabler for switch-konfigurasjon (VLAN, interfaces,).</td></tr>
   <tr><td>router-readme.md</td><td>Dokumentasjon for router playbook.</td></tr>
   <tr><td>switch-readme.md</td><td>Dokumentasjon for switch playbook.</td></tr>
 </table>
