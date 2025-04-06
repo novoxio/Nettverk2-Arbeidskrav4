@@ -4,7 +4,7 @@
 <p>Dette prosjektet er en del av Nettverk2 - Arbeidskrav 4. Prosjektet handler om automatisering av nettverkskonfigurasjon på Cisco rutere og switcher. Arbeidet er delt inn i to deler:</p>
 <ul>
   <li>Ansible → Automatisering med YAML playbooks.</li>
-  <li>Python → Automatisering med SSH og Python-skript.</li>
+  <li>Python → Automatisering med Serial-tilkboling og Python-skript.</li>
 </ul>
 
 <h2>Innhold</h2>
