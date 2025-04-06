@@ -1,0 +1,127 @@
+---
+- name: Konfigurer Cisco-router
+  hosts: router1
+  gather_facts: no
+  vars_files:
+    - vars_router.yaml
+
+  tasks:
+    - name: Sett hostname
+      ios_config:
+        config:
+          - hostname "{{ hostname }}"
+
+    - name: Konfigurer VLAN database
+      ios_config:
+        config:
+          - vlan {{ item.vlan }}  # Define the VLAN
+          - name {{ item.name }}  # Assign a name to the VLAN (optional, but useful for management)
+      loop: "{{ interfaces }}"
+      when: item.vlan is defined
+      register: vlan_db_result
+
+    - name: Konfigurer IP-adresser på grensesnitt
+      ios_config:
+        config:
+          - interface {{ item.name }}
+          - ip address {{ item.ip }} {{ item.mask }}
+          - no shutdown  # Ensure the interface is not administratively down
+      loop: "{{ interfaces }}"
+      when: item.ip is defined and item.mask is defined
+      register: interface_result
+
+    - name: Konfigurer VLAN på grensesnitt
+      ios_config:
+        config:
+          - interface {{ item.name }}
+          - encapsulation dot1Q {{ item.vlan }}  # Only applies if VLAN is defined
+      loop: "{{ interfaces }}"
+      when: item.vlan is defined
+      register: vlan_result
+
+    - name: Legg til statiske ruter
+      ios_config:
+        config:
+          - ip route {{ item.dest }} {{ item.mask }} {{ item.next_hop }}
+      loop: "{{ static_routes }}"
+
+    - name: Konfigurer OSPF
+      ios_config:
+        config:
+          - router ospf {{ ospf.process_id }}
+          - network {{ item.network }} {{ item.wildcard }} area {{ item.area }}
+      loop: "{{ ospf.networks }}"
+
+    - name: Enable DHCP service
+      ios_config:
+        config:
+          - service dhcp
+      when: dhcp.enabled
+
+    - name: Konfigurer DHCP
+      ios_config:
+        lines:
+          - network {{ dhcp.network }} {{ dhcp.netmask }}
+          - default-router {{ dhcp.default_router }}
+          - dns-server {{ dhcp.dns_servers }}
+          - lease {{ dhcp.lease_time }}
+        parents: "ip dhcp pool {{ dhcp.pool_name }}"
+      when: dhcp.enabled
+
+    - name: Konfigurer HSRP
+      ios_config:
+        config:
+          - interface {{ item.interface }}
+          - standby {{ item.group }} ip {{ item.virtual_ip }}
+          - standby {{ item.group }} priority {{ item.priority }}
+          - standby {{ item.group }} preempt
+      loop: "{{ hsrp }}"
+
+    - name: Save running config
+      ios_command:
+        commands:
+          - write memory
+
+    # Task to verify if IP addresses were applied correctly to interfaces
+    - name: Verify interface IP configuration
+      ios_command:
+        commands:
+          - show ip interface brief
+      register: interface_ip_output
+
+    - name: Display interface IP configuration
+      debug:
+        msg: "{{ interface_ip_output.stdout }}"
+
+    # Task to verify if interfaces are administratively up
+    - name: Verify interface status
+      ios_command:
+        commands:
+          - show interfaces status
+      register: interface_status_output
+
+    - name: Display interface status
+      debug:
+        msg: "{{ interface_status_output.stdout }}"
+
+    # Task to verify VLAN configuration
+    - name: Verify VLAN configuration
+      ios_command:
+        commands:
+          - show running-config | include vlan
+      register: vlan_output
+
+    - name: Display VLAN configuration
+      debug:
+        msg: "{{ vlan_output.stdout }}"
+      
+    # Task to verify OSPF status
+    - name: Verify OSPF configuration
+      ios_command:
+        commands:
+          - show ip ospf neighbor
+      register: ospf_output
+
+    - name: Display OSPF neighbor
+      debug:
+        msg: "{{ ospf_output.stdout }}"

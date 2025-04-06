@@ -1,0 +1,48 @@
+# Hostname for the switch
+hostname: "Arnold"
+
+# VLAN configuration
+vlans:
+  - id: 10
+    name: "VLAN10"
+  - id: 20
+    name: "VLAN20"
+
+# Trunk port list
+trunk_ports:
+  - "GigabitEthernet1/0/5"
+  - "GigabitEthernet1/0/6"
+
+# Access ports and associated VLANs
+access_ports:
+  - port: "GigabitEthernet1/0/3"
+    vlan: 10
+  - port: "GigabitEthernet1/0/4"
+    vlan: 20
+
+# EtherChannel configuration
+etherchannel:
+  mode: "active"  # Use LACP mode
+  group: 1
+  ports:
+    - "GigabitEthernet1/0/8"
+    - "GigabitEthernet1/0/9"
+
+# DHCP Pools configuration
+dhcp_pools:
+  - name: "VLAN10"
+    network: "192.168.10.0"
+    mask: "255.255.255.0"
+    router: "192.168.10.1"
+    dns: "8.8.8.8"
+  - name: "VLAN20"
+    network: "192.168.20.0"
+    mask: "255.255.255.0"
+    router: "192.168.20.1"
+    dns: "8.8.8.8"
+
+# VRF configuration
+vrf:
+  name: "Mgmt-vrf"
+  interfaces:
+    - "GigabitEthernet0/0"

@@ -1,0 +1,123 @@
+- name: Konfigurer Cisco-switcher
+  hosts: cisco_switches
+  gather_facts: no
+  vars_files:
+    - vars_switch.yaml
+  connection: network_cli
+  become: yes
+  become_method: enable
+
+  tasks:
+    - name: Sett hostname
+      cisco.ios.ios_config:
+        lines:
+          - "hostname {{ hostname }}"
+        save_when: modified
+
+    - name: Konfigurer VLAN
+      cisco.ios.ios_config:
+        lines:
+          - "vlan {{ item.id }}"
+          - "name {{ item.name }}"
+      loop: "{{ vlans }}"
+      register: vlan_result
+      notify: Save config
+
+    - name: Konfigurer trunk-porter
+      cisco.ios.ios_config:
+        parents: "interface {{ item }}"
+        lines:
+          - "switchport mode trunk"
+          - "switchport trunk allowed vlan 10,20"
+          - "no shutdown"
+      loop: "{{ trunk_ports }}"
+      register: trunk_result
+      notify: Save config
+      vars:
+        ansible_command_timeout: 60
+
+    - name: Konfigurer access-porter
+      cisco.ios.ios_config:
+        parents: "interface {{ item.port }}"
+        lines:
+          - "switchport mode access"
+          - "switchport access vlan {{ item.vlan }}"
+          - "no shutdown"
+      loop: "{{ access_ports }}"
+      register: access_result
+      notify: Save config
+
+    - name: Konfigurer EtherChannel
+      block:
+        - name: Configure physical ports
+          cisco.ios.ios_config:
+            parents: "interface {{ item }}"
+            lines:
+              - "channel-group {{ etherchannel.group }} mode {{ etherchannel.mode }}"
+              - "no shutdown"
+          loop: "{{ etherchannel.ports }}"
+          register: etherchannel_ports
+
+        - name: Configure Port-channel interface
+          cisco.ios.ios_config:
+            parents: "interface Port-channel{{ etherchannel.group }}"
+            lines:
+              - "switchport mode trunk"
+              - "switchport trunk allowed vlan 10,20"
+              - "no shutdown"
+          register: portchannel_result
+      rescue:
+        - name: Show EtherChannel error
+          debug:
+            msg: "Failed to configure EtherChannel. Check switch logs."
+      always:
+        - name: Verify EtherChannel
+          cisco.ios.ios_command:
+            commands: "show etherchannel summary"
+          register: etherchannel_verify
+          changed_when: false
+
+    - name: Konfigurer VRF (conditional)
+      block:
+        - name: Create VRF definition
+          cisco.ios.ios_config:
+            lines: "vrf definition {{ vrf.name }}"
+            parents: []
+          when: vrf.name != ""
+          register: vrf_create
+
+        - name: Configure address family
+          cisco.ios.ios_config:
+            lines:
+              - "address-family ipv4"
+              - "exit-address-family"
+            parents: "vrf definition {{ vrf.name }}"
+          when: vrf.name != ""
+          register: vrf_def_result
+          notify: Save config
+      rescue:
+        - name: Show VRF configuration error
+          debug:
+            msg: "Failed to configure VRF. Check switch logs."
+
+    - name: Tilordne interfaces til VRF (conditional)
+      cisco.ios.ios_config:
+        parents: "interface {{ item }}"
+        lines: "vrf forwarding {{ vrf.name }}"
+      loop: "{{ vrf.interfaces }}"
+      when: vrf.name != "" and item != ""
+      register: vrf_intf_result
+      notify: Save config
+
+  handlers:
+    - name: Save config
+      cisco.ios.ios_config:
+        save_when: modified
+      when: >
+        vlan_result is changed or
+        trunk_result is changed or
+        access_result is changed or
+        etherchannel_ports is changed or
+        portchannel_result is changed or
+        vrf_def_result is changed or
+        vrf_intf_result is changed
