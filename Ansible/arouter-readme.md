@@ -1,54 +1,88 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <title>Router-konfigurasjon med Ansible</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #ffffff;
+      color: #000;
+      padding: 20px;
+      line-height: 1.6;
+      max-width: 900px;
+      margin: auto;
+    }
+    h1, h2, h3 {
+      color: #0b3d91;
+    }
+    pre {
+      background-color: #f4f4f4;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    code {
+      background-color: #eee;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+    ul {
+      padding-left: 20px;
+    }
+    .note {
+      background-color: #eef;
+      padding: 10px;
+      border-left: 4px solid #88f;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
 
   <h1>📡 Cisco Router-konfigurasjon med Ansible</h1>
 
-  <div class="section">
-    <h2>🧾 Om prosjektet</h2>
-    <p>Denne løsningen automatiserer konfigurasjonen av en Cisco-router ved hjelp av Ansible. Konfigurasjonen trekkes fra en YAML-fil og inkluderer blant annet:</p>
-    <ul>
-      <li>Hostname</li>
-      <li>VLAN og IP-konfigurasjon</li>
-      <li>Statiske ruter</li>
-      <li>OSPF routing</li>
-      <li>DHCP-tjeneste</li>
-      <li>HSRP-konfigurasjon</li>
-      <li>Verifikasjon av status</li>
-    </ul>
-  </div>
+  <h2>🧾 Om prosjektet</h2>
+  <p>Dette prosjektet automatiserer konfigurasjonen av en Cisco-router ved hjelp av Ansible og en YAML-basert variabelfil. Den dekker:</p>
+  <ul>
+    <li>Hostname</li>
+    <li>VLAN og IP-konfigurasjon</li>
+    <li>Statiske ruter</li>
+    <li>OSPF</li>
+    <li>DHCP</li>
+    <li>HSRP</li>
+    <li>Konfigurasjonsverifikasjon</li>
+  </ul>
 
-  <div class="section">
-    <h2>📦 Filstruktur</h2>
-    <pre>
+  <h2>📂 Filstruktur</h2>
+  <pre>
 router_config.yaml     # Ansible playbook
 vars_router.yaml       # Variabler for router
 inventory              # Inventory-fil med SSH-detaljer
-    </pre>
-  </div>
+  </pre>
 
-  <div class="section">
-    <h2>⚙️ Krav</h2>
-    <ul>
-      <li>Ansible installert</li>
-      <li>Moduler: <code>ansible.netcommon</code> og <code>cisco.ios</code></li>
-      <li>Tilkobling til Cisco-router via SSH (network_cli)</li>
-    </ul>
-  </div>
+  <h2>⚙️ Krav</h2>
+  <ul>
+    <li>Ansible installert</li>
+    <li>Python-moduler: <code>ansible.netcommon</code> og <code>cisco.ios</code></li>
+    <li>Tilgang via SSH til en Cisco-router</li>
+  </ul>
 
-  <div class="section">
-    <h2>🚀 Hvordan bruke</h2>
-    <p>1. Opprett en <code>inventory</code>-fil med riktig info:</p>
+  <h2>🚀 Hvordan bruke</h2>
+  <ol>
+    <li>Opprett en <code>inventory</code>-fil som dette:</li>
     <pre>
 [router1]
 192.168.5.1 ansible_user=admin ansible_password=admin ansible_network_os=ios ansible_connection=network_cli
     </pre>
-
-    <p>2. Rediger <code>vars_router.yaml</code> etter dine behov (se eksempel nedenfor).</p>
-    <p>3. Kjør playbooken:</p>
+    <li>Tilpass <code>vars_router.yaml</code> etter ditt miljø.</li>
+    <li>Kjør playbooken:</li>
     <pre>ansible-playbook -i inventory router_config.yaml</pre>
-  </div>
+  </ol>
 
-  <div class="section">
-    <h2>🛠️ Eksempel på variabler (<code>vars_router.yaml</code>)</h2>
-    <pre>
+  <h2>🛠️ Eksempel: <code>vars_router.yaml</code></h2>
+  <pre>
 hostname: "Router1"
 
 interfaces:
@@ -76,25 +110,23 @@ dhcp:
 hsrp:
   - { interface: "GigabitEthernet0/0", group: 1, virtual_ip: "192.168.2.254", priority: 110, preempt: true }
   - { interface: "GigabitEthernet0/1", group: 1, virtual_ip: "192.168.1.254", priority: 110, preempt: true }
-    </pre>
+  </pre>
+
+  <h2>🔍 Verifikasjon</h2>
+  <p>Følgende kommandoer kjøres automatisk etter konfigurasjon:</p>
+  <ul>
+    <li><code>show ip interface brief</code></li>
+    <li><code>show interfaces status</code></li>
+    <li><code>show run | include vlan</code></li>
+    <li><code>show ip ospf neighbor</code></li>
+  </ul>
+  <div class="note">
+    Resultatene vises i terminalen via <code>debug</code>-meldinger.
   </div>
 
-  <div class="section">
-    <h2>✅ Verifikasjon</h2>
-    <p>Playbooken utfører automatisk verifisering av:</p>
-    <ul>
-      <li><code>show ip interface brief</code> – IP-konfigurasjon</li>
-      <li><code>show interfaces status</code> – Port-status</li>
-      <li><code>show run | include vlan</code> – VLAN-oversikt</li>
-      <li><code>show ip ospf neighbor</code> – OSPF-naboer</li>
-    </ul>
-    <div class="note">Resultatene vises som debug-meldinger direkte i Ansible-output.</div>
-  </div>
-
-  <div class="section">
-    <h2>👨‍💻 Forfatter</h2>
-    <p>📅 2025 – Laget av <strong>Torben</strong></p>
-  </div>
+  <h2>👨‍💻 Forfatter</h2>
+  <p>© Torben – 2025</p>
 
 </body>
 </html>
+
