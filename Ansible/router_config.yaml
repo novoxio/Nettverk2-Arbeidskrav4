@@ -10,40 +10,45 @@
       ios_config:
         config:
           - hostname "{{ hostname }}"
+      # Setter vertens navn (hostname) på routeren
 
     - name: Konfigurer VLAN database
       ios_config:
         config:
-          - vlan {{ item.vlan }}  # Define the VLAN
-          - name {{ item.name }}  # Assign a name to the VLAN (optional, but useful for management)
+          - vlan {{ item.vlan }}  # Definer VLAN
+          - name {{ item.name }}  # Tildeler et navn til VLAN (valgfritt, men nyttig for administrasjon)
       loop: "{{ interfaces }}"
       when: item.vlan is defined
       register: vlan_db_result
+      # Konfigurer VLAN i VLAN-databasen
 
     - name: Konfigurer IP-adresser på grensesnitt
       ios_config:
         config:
           - interface {{ item.name }}
           - ip address {{ item.ip }} {{ item.mask }}
-          - no shutdown  # Ensure the interface is not administratively down
+          - no shutdown  # Sørg for at grensesnittet ikke er administrativt nedstengt
       loop: "{{ interfaces }}"
       when: item.ip is defined and item.mask is defined
       register: interface_result
+      # Konfigurer IP-adresser på de spesifiserte grensesnittene
 
     - name: Konfigurer VLAN på grensesnitt
       ios_config:
         config:
           - interface {{ item.name }}
-          - encapsulation dot1Q {{ item.vlan }}  # Only applies if VLAN is defined
+          - encapsulation dot1Q {{ item.vlan }}  # Brukes bare hvis VLAN er definert
       loop: "{{ interfaces }}"
       when: item.vlan is defined
       register: vlan_result
+      # Konfigurer VLAN på grensesnittet med dot1Q-kapsling
 
     - name: Legg til statiske ruter
       ios_config:
         config:
           - ip route {{ item.dest }} {{ item.mask }} {{ item.next_hop }}
       loop: "{{ static_routes }}"
+      # Legg til statiske ruter for trafikdirigering
 
     - name: Konfigurer OSPF
       ios_config:
@@ -51,12 +56,14 @@
           - router ospf {{ ospf.process_id }}
           - network {{ item.network }} {{ item.wildcard }} area {{ item.area }}
       loop: "{{ ospf.networks }}"
+      # Konfigurer OSPF for ruting
 
-    - name: Enable DHCP service
+    - name: Aktiver DHCP-tjeneste
       ios_config:
         config:
           - service dhcp
       when: dhcp.enabled
+      # Aktiverer DHCP-serveren hvis den er aktivert i variablene
 
     - name: Konfigurer DHCP
       ios_config:
@@ -67,6 +74,7 @@
           - lease {{ dhcp.lease_time }}
         parents: "ip dhcp pool {{ dhcp.pool_name }}"
       when: dhcp.enabled
+      # Konfigurer DHCP-serverinnstillinger som nettverk, standard-gateway, DNS-servere og lease-tid
 
     - name: Konfigurer HSRP
       ios_config:
@@ -76,52 +84,62 @@
           - standby {{ item.group }} priority {{ item.priority }}
           - standby {{ item.group }} preempt
       loop: "{{ hsrp }}"
+      # Konfigurer HSRP for redundant gateway-konfigurasjon
 
-    - name: Save running config
+    - name: Lagre kjørende konfigurasjon
       ios_command:
         commands:
           - write memory
+      # Lagre den kjørende konfigurasjonen til minnet på routeren
 
-    # Task to verify if IP addresses were applied correctly to interfaces
-    - name: Verify interface IP configuration
+    # Verifiser IP-konfigurasjon på grensesnitt
+    - name: Verifiser IP-konfigurasjon på grensesnitt
       ios_command:
         commands:
           - show ip interface brief
       register: interface_ip_output
+      # Kjør kommandoen for å vise IP-konfigurasjonen
 
-    - name: Display interface IP configuration
+    - name: Vis IP-konfigurasjon på grensesnitt
       debug:
         msg: "{{ interface_ip_output.stdout }}"
+      # Vis IP-konfigurasjonen på grensesnittene i debug-kommandoen
 
-    # Task to verify if interfaces are administratively up
-    - name: Verify interface status
+    # Verifiser status på grensesnittene
+    - name: Verifiser status på grensesnitt
       ios_command:
         commands:
           - show interfaces status
       register: interface_status_output
+      # Kjør kommandoen for å vise status på grensesnittene
 
-    - name: Display interface status
+    - name: Vis status på grensesnitt
       debug:
         msg: "{{ interface_status_output.stdout }}"
+      # Vis statusen på grensesnittene i debug-kommandoen
 
-    # Task to verify VLAN configuration
-    - name: Verify VLAN configuration
+    # Verifiser VLAN-konfigurasjon
+    - name: Verifiser VLAN-konfigurasjon
       ios_command:
         commands:
           - show running-config | include vlan
       register: vlan_output
+      # Kjør kommandoen for å vise VLAN-konfigurasjonen
 
-    - name: Display VLAN configuration
+    - name: Vis VLAN-konfigurasjon
       debug:
         msg: "{{ vlan_output.stdout }}"
-      
-    # Task to verify OSPF status
-    - name: Verify OSPF configuration
+      # Vis VLAN-konfigurasjonen i debug-kommandoen
+
+    # Verifiser OSPF-konfigurasjon
+    - name: Verifiser OSPF-konfigurasjon
       ios_command:
         commands:
           - show ip ospf neighbor
       register: ospf_output
+      # Kjør kommandoen for å vise OSPF-naboer
 
-    - name: Display OSPF neighbor
+    - name: Vis OSPF-nabo
       debug:
         msg: "{{ ospf_output.stdout }}"
+      # Vis OSPF-naboer i debug-kommandoen
