@@ -40,7 +40,7 @@
 <p>Automatisering av nettverksutstyr blir mer og mer vanlig i IT-bransjen. I dette arbeidskravet vises to forskjellige metoder for automatisering:</p>
 <ul>
   <li>Bruk av Ansible for strukturert og skalerbar konfigurasjon.</li>
-  <li>Bruk av Python for direkte SSH-tilkobling og manuell konfigurasjon.</li>
+  <li>Bruk av Python for direkte tilkobling og manuell konfigurasjon.</li>
 </ul>
 
 <p>Begge metodene bidrar til enklere og mer effektiv drift av nettverk.</p>
