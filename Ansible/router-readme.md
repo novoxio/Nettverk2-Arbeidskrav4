@@ -13,7 +13,7 @@
     <li><strong>Konfigurasjonsverifikasjon</strong>: Verifiserer om konfigurasjonen har blitt korrekt implementert via Ansible.</li>
 </ul>
 
-<h2>📂 Filstruktur</h2>
+<h2>Filstruktur</h2>
 <p>Filene som er inkludert i prosjektet er:</p>
 <pre>
 router_config.yaml     # Ansible playbook  
@@ -29,7 +29,7 @@ inventory              # Inventory-fil med SSH-detaljer
     <li><strong>SSH-tilgang til en Cisco-router:</strong> Du trenger SSH-tilgang til routeren du ønsker å konfigurere.</li>
 </ul>
 
-<h2>🚀 Hvordan bruke</h2>
+<h2>Hvordan bruke</h2>
 <p>Følg disse trinnene for å bruke denne playbooken:</p>
 <ol>
     <li>Opprett en <strong>inventory-fil</strong> med informasjon om routeren, for eksempel:</li>
@@ -81,7 +81,7 @@ hsrp:
   - { interface: "GigabitEthernet0/1", group: 1, virtual_ip: "192.168.1.254", priority: 110, preempt: true }
 </pre>
 
-<h2>🔍 Verifikasjon</h2>
+<h2>Verifikasjon</h2>
 <p>Etter at konfigurasjonen er utført, kjøres følgende kommandoer automatisk for å bekrefte at konfigurasjonen er korrekt:</p>
 <ul>
     <li><code>show ip interface brief</code>: Sjekker IP-konfigurasjonen på grensesnittene.</li>
@@ -91,7 +91,5 @@ hsrp:
 </ul>
 <p>Resultatene vises i terminalen via <code>debug</code>-meldinger, som kan brukes til å verifisere at alt er riktig satt opp.</p>
 
-<h2>👨‍💻 Forfatter</h2>
-<p>© Torben – 2025</p>
 
 
