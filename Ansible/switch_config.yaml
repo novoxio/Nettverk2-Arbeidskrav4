@@ -13,6 +13,7 @@
         lines:
           - "hostname {{ hostname }}"
         save_when: modified
+      # Setter vertens navn (hostname) på switchen
 
     - name: Konfigurer VLAN
       cisco.ios.ios_config:
@@ -22,6 +23,7 @@
       loop: "{{ vlans }}"
       register: vlan_result
       notify: Save config
+      # Konfigurer VLAN på switchen, tildeler ID og navn for hvert VLAN
 
     - name: Konfigurer trunk-porter
       cisco.ios.ios_config:
@@ -35,6 +37,7 @@
       notify: Save config
       vars:
         ansible_command_timeout: 60
+      # Konfigurer trunk-porter, tillater VLAN 10 og 20 og aktiverer portene
 
     - name: Konfigurer access-porter
       cisco.ios.ios_config:
@@ -46,10 +49,11 @@
       loop: "{{ access_ports }}"
       register: access_result
       notify: Save config
+      # Konfigurer access-porter, tilknyt VLAN til portene og aktiver portene
 
     - name: Konfigurer EtherChannel
       block:
-        - name: Configure physical ports
+        - name: Konfigurer fysiske porter
           cisco.ios.ios_config:
             parents: "interface {{ item }}"
             lines:
@@ -57,8 +61,9 @@
               - "no shutdown"
           loop: "{{ etherchannel.ports }}"
           register: etherchannel_ports
+          # Konfigurer fysiske porter som en del av EtherChannel-gruppen
 
-        - name: Configure Port-channel interface
+        - name: Konfigurer Port-channel-grensesnitt
           cisco.ios.ios_config:
             parents: "interface Port-channel{{ etherchannel.group }}"
             lines:
@@ -66,27 +71,33 @@
               - "switchport trunk allowed vlan 10,20"
               - "no shutdown"
           register: portchannel_result
+          # Konfigurer EtherChannel som trunk og tillater VLAN 10 og 20 på port-channel-grensesnittet
+
       rescue:
-        - name: Show EtherChannel error
+        - name: Vis EtherChannel-feil
           debug:
             msg: "Failed to configure EtherChannel. Check switch logs."
+          # Hvis EtherChannel-konfigurasjonen mislykkes, vis feilmelding
+
       always:
-        - name: Verify EtherChannel
+        - name: Verifiser EtherChannel
           cisco.ios.ios_command:
             commands: "show etherchannel summary"
           register: etherchannel_verify
           changed_when: false
+          # Verifiser EtherChannel-konfigurasjonen ved å vise oppsummeringen
 
-    - name: Konfigurer VRF (conditional)
+    - name: Konfigurer VRF (betinget)
       block:
-        - name: Create VRF definition
+        - name: Opprett VRF-definisjon
           cisco.ios.ios_config:
             lines: "vrf definition {{ vrf.name }}"
             parents: []
           when: vrf.name != ""
           register: vrf_create
+          # Opprett VRF-definisjonen hvis vrf.name er spesifisert
 
-        - name: Configure address family
+        - name: Konfigurer adressefamilie
           cisco.ios.ios_config:
             lines:
               - "address-family ipv4"
@@ -95,12 +106,15 @@
           when: vrf.name != ""
           register: vrf_def_result
           notify: Save config
+          # Konfigurer adressefamilien for VRF (IPv4)
+
       rescue:
-        - name: Show VRF configuration error
+        - name: Vis VRF-konfigurasjonsfeil
           debug:
             msg: "Failed to configure VRF. Check switch logs."
+          # Hvis VRF-konfigurasjonen mislykkes, vis feilmelding
 
-    - name: Tilordne interfaces til VRF (conditional)
+    - name: Tilordne interfaces til VRF (betinget)
       cisco.ios.ios_config:
         parents: "interface {{ item }}"
         lines: "vrf forwarding {{ vrf.name }}"
@@ -108,6 +122,7 @@
       when: vrf.name != "" and item != ""
       register: vrf_intf_result
       notify: Save config
+      # Tilordne interfaces til VRF hvis VRF-navn er spesifisert
 
   handlers:
     - name: Save config
@@ -121,3 +136,4 @@
         portchannel_result is changed or
         vrf_def_result is changed or
         vrf_intf_result is changed
+      # Lagre konfigurasjonen hvis det har skjedd endringer i VLAN, trunk, access, EtherChannel, eller VRF
