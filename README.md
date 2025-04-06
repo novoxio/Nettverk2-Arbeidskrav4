@@ -10,7 +10,7 @@
 <h2>Innhold</h2>
 
 <h3>Ansible</h3>
-<p>Mappen <code>Ansible/</code> inneholder Ansible playbooks og variabler brukt for automatisk konfigurasjon av router og switch.</p>
+<p>Mappen <code>Ansible/</code> inneholder Ansible playbooks og variabler brukt for automatisk konfigurasjon over SSH av router og switch.</p>
 
 <h4>Filstruktur:</h4>
 <table>
@@ -25,7 +25,7 @@
 </table>
 
 <h3>Python</h3>
-<p>Mappen <code>Python/</code> inneholder Python-skript som bruker SSH for å koble til og konfigurere router og switch automatisk.</p>
+<p>Mappen <code>Python/</code> inneholder Python-skript som bruker serial for å koble til og konfigurere router og switch automatisk.</p>
 
 <h4>Filstruktur:</h4>
 <table>
@@ -39,8 +39,8 @@
 <h2>Formål med arbeidskravet</h2>
 <p>Automatisering av nettverksutstyr blir mer og mer vanlig i IT-bransjen. I dette arbeidskravet vises to forskjellige metoder for automatisering:</p>
 <ul>
-  <li>Bruk av Ansible for strukturert og skalerbar konfigurasjon.</li>
+  <li>Bruk av Ansible for skalerbar konfigurasjon over SSH.</li>
   <li>Bruk av Python for direkte tilkobling og manuell konfigurasjon.</li>
 </ul>
 
-<p>Begge metodene bidrar til enklere og mer effektiv drift av nettverk.</p>
+<p>Begge metodene bidrar til mer effektiv drift av nettverk. </p>
