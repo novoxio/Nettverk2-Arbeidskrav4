@@ -1,5 +1,5 @@
 # Hostname for the switch
-hostname: "Arnold"
+hostname: "Switch1"
 
 # VLAN configuration
 vlans:
